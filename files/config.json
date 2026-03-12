@@ -1,0 +1,35 @@
+{
+    "name": "model_random_ml_demo",
+    "type": "factor",
+    "tracking": {
+        "enabled": true,
+        "realtime_monitor": true
+    },
+    "input": [],
+    "output": [
+        {
+            "group_name": "model_random_ml_demo",
+            "fields": [
+                "demo__random_torch_score__1d"
+            ],
+            "category_1": "machine learning model",
+            "category_2": "classification",
+            "category_3": "test",
+            "target": "stock",
+            "description": "随机生成数据的测试模型输出"
+        },
+        {
+            "type": "model",
+            "name": "random_torch_model",
+            "model_type": "torch",
+            "description": "随机生成数据训练出的测试 Torch 模型"
+        }
+    ],
+    "schedule": [
+        "****-**-** 19:00:00"
+    ],
+    "computation": {
+        "external_source": "model_random_ml_demo.py",
+        "single": "compute"
+    }
+}
