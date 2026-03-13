@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 from datetime import datetime
 from multiprocessing import get_context
 from typing import Dict, List, Tuple
@@ -10,9 +12,17 @@ import torch.nn as nn
 
 from jade_ml.subrun import subrun
 
-from .abstract.factor import Factor
+try:
+    from .abstract.factor import Factor
+except ImportError:
+    from abstract.factor import Factor
 
 logger = logging.getLogger(__name__)
+
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 
 class TinyBinaryNet(nn.Module):
@@ -186,10 +196,8 @@ class model_ml_demo(Factor):
         return tasks
 
     def _run_submodels(self, sub_tasks: List[Dict[str, object]]) -> List[Dict[str, object]]:
-        # Jade 动态加载项目模块时，spawn 子进程会重新 import 当前模块，
-        # 但该模块不在标准可导入包路径里，容易触发 ModuleNotFoundError。
-        # Linux 场景下优先使用 fork，直接继承父进程内存中的已加载模块。
-        ctx = get_context("fork")
+        # 显式将项目目录加入 sys.path，确保 spawn 子进程可重新导入当前模块。
+        ctx = get_context("spawn")
         with ctx.Pool(processes=len(sub_tasks)) as pool:
             return pool.map(_train_submodel, sub_tasks)
 
