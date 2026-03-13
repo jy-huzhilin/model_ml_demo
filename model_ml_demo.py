@@ -145,17 +145,17 @@ class model_ml_demo(Factor):
                 },
                 step=self.train_steps + 1,
             )
-            tracker.log_model(final_model.cpu(), "random_torch_model", model_type="torch")
+            tracker.log_model(final_model.cpu(), "model_torch_model", model_type="torch")
 
         logger.info(
-            "random ml multiprocess demo compute complete: time=%s base_seed=%s submodels=%s",
+            "model ml multiprocess demo compute complete: time=%s base_seed=%s submodels=%s",
             train_time,
             base_seed,
             len(sub_results),
         )
         return {
-            "demo__random_torch_score__1d": score_df,
-            "random_torch_model": {
+            "demo__model_torch_score__1d": score_df,
+            "model_torch_model": {
                 train_time: final_model.cpu(),
             },
         }
@@ -167,7 +167,7 @@ class model_ml_demo(Factor):
         end_time: datetime,
         run_times: list,
     ) -> Dict[str, pd.DataFrame]:
-        raise NotImplementedError("model_random_ml_demo is schedule-only; compute_history is intentionally omitted")
+        raise NotImplementedError("model_ml_demo is schedule-only; compute_history is intentionally omitted")
 
     def _build_sub_tasks(self, base_seed: int, train_time: str) -> List[Dict[str, object]]:
         tasks: List[Dict[str, object]] = []
