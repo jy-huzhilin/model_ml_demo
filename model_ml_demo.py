@@ -186,7 +186,10 @@ class model_ml_demo(Factor):
         return tasks
 
     def _run_submodels(self, sub_tasks: List[Dict[str, object]]) -> List[Dict[str, object]]:
-        ctx = get_context("spawn")
+        # Jade 动态加载项目模块时，spawn 子进程会重新 import 当前模块，
+        # 但该模块不在标准可导入包路径里，容易触发 ModuleNotFoundError。
+        # Linux 场景下优先使用 fork，直接继承父进程内存中的已加载模块。
+        ctx = get_context("fork")
         with ctx.Pool(processes=len(sub_tasks)) as pool:
             return pool.map(_train_submodel, sub_tasks)
 
