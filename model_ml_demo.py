@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
-from jade_ml.subrun import subrun
+from jade_ml import JadeTracker
 
 from .abstract.factor import Factor
 
@@ -51,10 +51,9 @@ def _train_submodel(task: Dict[str, object]) -> Dict[str, object]:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     criterion = nn.BCEWithLogitsLoss()
 
-    with subrun(
+    with JadeTracker.subrun(
         run_name=f"submodel:{model_name}",
         extra_tags={"jade.submodel": model_name},
-        extra_params={"model": model_name, "seed": seed},
     ) as ctx:
         ctx.log_params(
             {
@@ -114,14 +113,15 @@ class model_ml_demo(Factor):
         self.train_steps = 5
         self.submodel_names = ["model_a", "model_b", "model_c"]
 
-    def compute(self, input: Dict[str, pd.DataFrame], time: datetime, tracker=None) -> Dict[str, pd.DataFrame]:
+    def compute(self, input: Dict[str, pd.DataFrame], time: datetime) -> Dict[str, pd.DataFrame]:
         _ = input
         ts = pd.Timestamp(time)
         base_seed = int(ts.timestamp()) % (86400 * 365)
         train_time = ts.strftime("%Y-%m-%d %H:%M:%S")
 
-        if tracker:
-            tracker.log_params(
+        tracker = JadeTracker(tags={"jade.task_kind": "model_ml_demo"})
+        with tracker.start_run(run_name=f"model_ml_demo:{train_time}") as ctx:
+            ctx.log_params(
                 {
                     "seed": base_seed,
                     "symbols": len(self.symbols),
@@ -133,19 +133,18 @@ class model_ml_demo(Factor):
                 }
             )
 
-        sub_tasks = self._build_sub_tasks(base_seed=base_seed, train_time=train_time)
-        sub_results = self._run_submodels(sub_tasks)
-        score_df, final_model = self._merge_results(sub_results=sub_results, time=time)
+            sub_tasks = self._build_sub_tasks(base_seed=base_seed, train_time=train_time)
+            sub_results = self._run_submodels(sub_tasks)
+            score_df, final_model = self._merge_results(sub_results=sub_results, time=time)
 
-        if tracker:
-            tracker.log_metrics(
+            ctx.log_metrics(
                 {
                     "ensemble_mean_score": float(score_df["value"].mean()),
                     "ensemble_score_std": float(score_df["value"].std(ddof=0)),
                 },
                 step=self.train_steps + 1,
             )
-            tracker.log_model(final_model.cpu(), "model_torch_model", model_type="torch")
+            ctx.log_model(final_model.cpu(), "model_torch_model", model_type="torch")
 
         logger.info(
             "model ml multiprocess demo compute complete: time=%s base_seed=%s submodels=%s",
