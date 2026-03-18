@@ -8,11 +8,15 @@
     "input": [
         {
             "type": "model",
-            "name": "model_torch_model",
-            "table": "model_torch_model",
             "model_type": "torch",
             "start_time": "-84600",
-            "end_time": "schedule_now"
+            "end_time": "schedule_now",
+            "sources": [
+                {
+                    "name": "model_torch_model",
+                    "table": "model_torch_model"
+                }
+            ]
         }
     ],
     "output": [
