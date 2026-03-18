@@ -5,12 +5,26 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 
 from jade_ml import JadeTracker
 
 from .abstract.factor import Factor
 
 logger = logging.getLogger(__name__)
+
+
+class TinyBinaryNet(nn.Module):
+    def __init__(self, input_dim: int):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 16),
+            nn.ReLU(),
+            nn.Linear(16, 1),
+        )
+
+    def forward(self, x):
+        return self.net(x)
 
 
 class model_ml_demo(Factor):
