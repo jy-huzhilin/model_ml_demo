@@ -68,7 +68,6 @@ class model_ml_demo(Factor):
                     "time": [pd.Timestamp(time).strftime("%Y-%m-%d %H:%M:%S")] * len(self.symbols),
                     "symbol": self.symbols,
                     "value": scores,
-                    "loaded_train_time": [str(latest_train_time)] * len(self.symbols),
                 }
             )
 
