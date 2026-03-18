@@ -5,24 +5,27 @@
         "enabled": true,
         "realtime_monitor": true
     },
-    "input": [],
+    "input": [
+        {
+            "type": "model",
+            "name": "model_torch_model",
+            "table": "model_torch_model",
+            "model_type": "torch",
+            "start_time": "-84600",
+            "end_time": "schedule_now"
+        }
+    ],
     "output": [
         {
             "group_name": "model_ml_demo",
             "fields": [
-                "demo__model_torch_score__1d"
+                "demo__model_torch_infer__1d"
             ],
             "category_1": "machine learning model",
-            "category_2": "classification",
+            "category_2": "inference",
             "category_3": "test",
             "target": "stock",
-            "description": "随机生成数据的测试模型输出"
-        },
-        {
-            "type": "model",
-            "name": "model_torch_model",
-            "model_type": "torch",
-            "description": "随机生成数据训练出的测试 Torch 模型"
+            "description": "加载已注册 Torch 模型后生成的测试推理输出"
         }
     ],
     "schedule": [
